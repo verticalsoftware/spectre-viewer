@@ -24,8 +24,8 @@ internal sealed class PageContent : IPageContent
         _height = height;
         _breakPositions = breakPositions;
         _markupTags = markupTags;
-        _lazyPageTags = new Lazy<ILookup<int, string>>(BuildPageTagLookup);
         _buffer = bufferWriter;
+        _lazyPageTags = new Lazy<ILookup<int, string>>(BuildPageTagLookup);
         PageCount = _breakPositions.Count / height + 1;
     }
 
@@ -45,12 +45,15 @@ internal sealed class PageContent : IPageContent
 
         var (lower, upper) = GetPageCharRange(index);
         var sb = new StringBuilder((int)(_width * _height * 1.5));
+        
         foreach (var tag in GetOpenTags(index))
         {
             sb.Append(tag);
         }
+        
         var span = _buffer.WrittenSpan[lower..upper];
         sb.Append(span);
+        
         foreach (var tag in GetCloseTags(index))
         {
             sb.Append(tag);
@@ -58,11 +61,21 @@ internal sealed class PageContent : IPageContent
 
         var completeRender = sb.ToString();
         _cachedRenderedPages[index] = completeRender;
+        
         return completeRender; 
     }
     
     private ILookup<int, string> BuildPageTagLookup()
     {
+        // Since the utility can breakup opening and closing markup tags to display pages
+        // (which are subsets of the original markup), we need to track them because SpectreConsole
+        // throws when the stack is unbalanced. This means we need to track them.
+        // Tracking them =
+        // (1) determine which opened tags would not be closed by the end of the page
+        // (2) make sure they get closed when the page is rendered
+        // (3) make sure they get re-opened when the next page is rendered to continue the styling and ensure that the
+        // closing tag can be paired.
+        
         var stack = new Stack<MarkupTag>();
         var queue = new Queue<MarkupTag>(_markupTags);
         var writeTags = new List<KeyValuePair<int, string>>(_markupTags.Count * 4);
@@ -70,7 +83,7 @@ internal sealed class PageContent : IPageContent
         
         for (var page = 0; page < pageCount; page++)
         {
-            // The stack contains tags opened from the last page - reopen them on
+            // The stack contains tags closed on the last page - mark them to get re-opened on
             // this page
             writeTags.AddRange(stack.Reverse().Select(tag => new KeyValuePair<int, string>(page, tag.Value)));
 
@@ -89,20 +102,20 @@ internal sealed class PageContent : IPageContent
                     stack.Pop();
             }
             
-            // The stack contains open tags, which must be closed before the
-            // page is rendered
+            // The stack contains open tags, which must be closed before the page is rendered - mark
+            // them to get closed.
             writeTags.AddRange(Enumerable.
                 Range(0, stack.Count)
                 .Select(_ => new KeyValuePair<int, string>(page, "[/]")));
         }
-
+        
         return writeTags.ToLookup(e => e.Key, e => e.Value);
     }
 
     private (int Lower, int Upper) GetPageCharRange(int index)
     {
         var startBreakIndex = Math.Min(_breakPositions.Count - 1, index * _height);
-        var endBreakIndex = startBreakIndex + _height + 1;
+        var endBreakIndex = startBreakIndex + _height;
         var startCharIndex = _breakPositions[startBreakIndex].Position;
         var endCharIndex = endBreakIndex < _breakPositions.Count
             ? _breakPositions[endBreakIndex].Position

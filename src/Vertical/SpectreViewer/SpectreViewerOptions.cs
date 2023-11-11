@@ -21,7 +21,8 @@ public sealed class SpectreViewerOptions
     public int RenderHeight { get; init; } = AnsiConsole.Profile.Height - BottomMargin;
 
     /// <summary>
-    /// Gets the console to render the output to.
+    /// Gets whether to preserve leading whitespace, meaning lines that are indented remain indented
+    /// when they are split due to the length exceeding the console width.
     /// </summary>
-    public IAnsiConsole Console { get; init; } = AnsiConsole.Console;
+    public bool PreserveLeadingWhiteSpace { get; init; } = true;
 }

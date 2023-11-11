@@ -2,4 +2,4 @@
 
 using Vertical.SpectreViewer;
 
-SpectreViewer.Render(File.OpenRead("trouble.txt"));
+SpectreConsoleViewer.MarkupWithPaging(File.OpenRead("troubleshoot.txt"));

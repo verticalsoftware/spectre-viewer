@@ -4,17 +4,14 @@ internal static class RenderEngine
 {
     internal static IPageContent Write(
         TextReader textReader, 
-        IRenderBuffer renderBuffer)
+        IRenderBuffer renderBuffer,
+        SpectreViewerOptions options)
     {
-        using (textReader)
-        {
-            ReadStream(textReader, renderBuffer);
-        }
-
+        ReadStream(textReader, renderBuffer, options);
         return renderBuffer.GetPageContent();
     }
 
-    private static void ReadStream(TextReader textReader, IRenderBuffer renderBuffer)
+    private static void ReadStream(TextReader textReader, IRenderBuffer renderBuffer, SpectreViewerOptions options)
     {
         while (true)
         {
@@ -23,11 +20,11 @@ internal static class RenderEngine
             if (inputLine == null)
                 break;
             
-            ReadLine(inputLine, renderBuffer);
+            ReadLine(inputLine, renderBuffer, options);
         }
     }
 
-    private static void ReadLine(string inputLine, IRenderBuffer writer)
+    private static void ReadLine(string inputLine, IRenderBuffer writer, SpectreViewerOptions options)
     {
         // Fairly efficient check
         if (string.IsNullOrWhiteSpace(inputLine))
@@ -36,6 +33,7 @@ internal static class RenderEngine
             return;
         }
 
+        var preserveWs = options.PreserveLeadingWhiteSpace;
         var tagPosition = writer.Position;
         var span = inputLine.AsSpan();
         var width = writer.Width;
@@ -57,7 +55,7 @@ internal static class RenderEngine
         var len = span.Length;
         
         // Markers & counters
-        var lastChar = '\0';
+        var bracketStack = 0;
 
         for (; ptr < len; ptr++)
         {
@@ -69,7 +67,7 @@ internal static class RenderEngine
                 virtualCursor += subIndent;
             }
 
-            if (span[ptr] == '[' && lastChar != '[')
+            if (span[ptr] == '[' && bracketStack % 2 == 0)
             {
                 var tagSpan = span[ptr..];
                 var tagLength = GetMarkTagLength(tagSpan);
@@ -87,13 +85,13 @@ internal static class RenderEngine
                     
                     // This is new...
                     subIndent = 0;
-                    lastChar = ']';
+                    bracketStack = 0;
                     ptr--;
                     continue;
                 }
             }
             
-            if (virtualCursor == width)
+            if (preserveWs && virtualCursor == width)
             {
                 // At the right margin, break the line
                 var w = ptr;
@@ -136,22 +134,28 @@ internal static class RenderEngine
                 // Apply indent to next line
                 subIndent = indent;
 
-                lastChar = '\0';
+                bracketStack = 0;
                 continue;
             }
 
             subIndent = 0;
             virtualCursor++;
             tagPosition++;
-            lastChar = span[ptr];
+            
+            // Adjust bracket counter
+            if (span[ptr] == '[')
+                bracketStack++;
+            else
+                bracketStack = 0;
         }
         
         // Write what's left in span 
         if (span.Length == 0)
             return;
 
-        if (virtualCursor > 0)
+        if (preserveWs && virtualCursor > 0)
         {
+            // Preserve whitespace in case no line break was made
             writer.WriteWhitespace(subIndent);
         }
 
@@ -165,8 +169,9 @@ internal static class RenderEngine
 
     private static int GetMarkTagLength(ReadOnlySpan<char> span)
     {
-        // Set pointer after first bracket
         var len = span.Length;
+        
+        // Set pointer after first bracket and forward scan one character
         var s = 1;
         if (s == len || span[s] == '[')
             return 0;

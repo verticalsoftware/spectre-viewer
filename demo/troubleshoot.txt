@@ -1,4 +1,4 @@
-[green]DbXtract[/]
+DbXtract
 
 Tools & utilities to export data from relational databases to different formats.
 

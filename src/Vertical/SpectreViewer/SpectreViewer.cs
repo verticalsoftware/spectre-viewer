@@ -1,56 +1,131 @@
 ﻿using System.Text;
+using Spectre.Console;
 
 namespace Vertical.SpectreViewer;
 
-public static class SpectreViewer
+public static class SpectreConsoleViewer
 {
     /// <summary>
-    /// Renders the content read from the given <see cref="StringBuilder"/>.
+    /// Renders the content read from the given <see cref="StringBuilder"/> to the console defined in the static
+    /// <see cref="AnsiConsole"/> type.
     /// </summary>
     /// <param name="str">String that contains the content.</param>
     /// <param name="options">Options.</param>
-    public static void Render(string str, SpectreViewerOptions? options = null)
+    public static void MarkupWithPaging(string str, SpectreViewerOptions? options = null)
     {
-        using var reader = new StringReader(str);
-        Render(reader, options);
+        AnsiConsole.Console.MarkupWithPaging(str, options);         
     }
     
     /// <summary>
     /// Renders the content read from the given <see cref="StringBuilder"/>.
     /// </summary>
-    /// <param name="stringBuilder">StringBuilder that contains the content.</param>
+    /// <param name="console">The console to render to.</param>
+    /// <param name="str">String that contains the content.</param>
     /// <param name="options">Options.</param>
-    public static void Render(StringBuilder stringBuilder, SpectreViewerOptions? options = null)
+    public static void MarkupWithPaging(this IAnsiConsole console, string str, SpectreViewerOptions? options = null)
     {
-        using var reader = new StringReader(stringBuilder.ToString());
-        Render(reader, options);
+        using var reader = new StringReader(str);
+        MarkupWithPaging(console, reader, options);
     }
     
     /// <summary>
-    /// Renders the content read form the provided <see cref="Stream"/>.
+    /// Renders the content read from the given <see cref="StringBuilder"/> to the console defined in the static
+    /// <see cref="AnsiConsole"/> type.
+    /// </summary>
+    /// <param name="stringBuilder">StringBuilder that contains the content.</param>
+    /// <param name="options">Options.</param>
+    public static void MarkupWithPaging(
+        StringBuilder stringBuilder,
+        SpectreViewerOptions? options = null)
+    {
+        AnsiConsole.Console.MarkupWithPaging(stringBuilder, options);
+    }
+
+    /// <summary>
+    /// Renders the content read from the given <see cref="StringBuilder"/>.
+    /// </summary>
+    /// <param name="console">The console to render to.</param>
+    /// <param name="stringBuilder">StringBuilder that contains the content.</param>
+    /// <param name="options">Options.</param>
+    public static void MarkupWithPaging(
+        this IAnsiConsole console,
+        StringBuilder stringBuilder,
+        SpectreViewerOptions? options = null)
+    {
+        using var reader = new StringReader(stringBuilder.ToString());
+        MarkupWithPaging(console, reader, options);
+    }
+    
+    /// <summary>
+    /// Renders the content read form the provided <see cref="Stream"/> to the console defined in the static
+    /// <see cref="AnsiConsole"/> type.
     /// </summary>
     /// <param name="stream">Stream that contains the content.</param>
     /// <param name="options">Options.</param>
-    public static void Render(Stream stream, SpectreViewerOptions? options = null)
+    /// <remarks>
+    /// This method disposes of <paramref name="stream"/> after rendering. If the stream needs to remain
+    /// open, provide a <see cref="TextReader"/> instead.
+    /// </remarks>
+    public static void MarkupWithPaging(Stream stream, SpectreViewerOptions? options = null)
     {
+        AnsiConsole.Console.MarkupWithPaging(stream, options);
+    }
+
+    /// <summary>
+    /// Renders the content read form the provided <see cref="Stream"/>.
+    /// </summary>
+    /// <param name="console">The console to render to.</param>
+    /// <param name="stream">Stream that contains the content.</param>
+    /// <param name="options">Options.</param>
+    /// <remarks>
+    /// This method disposes of <paramref name="stream"/> after rendering. If the stream needs to remain
+    /// open, provide a <see cref="TextReader"/> instead.
+    /// </remarks>
+    public static void MarkupWithPaging(this IAnsiConsole console, Stream stream, SpectreViewerOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        
         using var textReader = new StreamReader(stream);
-        Render(textReader, options);
+        MarkupWithPaging(console, textReader, options);
     }
     
     /// <summary>
-    /// Renders the content read from the provided <see cref="TextReader"/>.
+    /// Renders the content read from the provided <see cref="TextReader"/> to the console defined in the static
+    /// <see cref="AnsiConsole"/> type.
     /// </summary>
     /// <param name="textReader"><see cref="TextReader"/> that contains the content.</param>
     /// <param name="options">Options.</param>
-    public static void Render(TextReader textReader, SpectreViewerOptions? options = null)
+    /// <remarks>
+    /// This method does not dispose <paramref name="textReader"/>.
+    /// </remarks>
+    public static void MarkupWithPaging(
+        TextReader textReader,
+        SpectreViewerOptions? options = null)
+    {
+        AnsiConsole.Console.MarkupWithPaging(textReader, options);
+    }
+
+    /// <summary>
+    /// Renders the content read from the provided <see cref="TextReader"/>.
+    /// </summary>
+    /// <param name="console">The console to render to.</param>
+    /// <param name="textReader"><see cref="TextReader"/> that contains the content.</param>
+    /// <param name="options">Options.</param>
+    /// <remarks>
+    /// This method does not dispose <paramref name="textReader"/>
+    /// </remarks>
+    public static void MarkupWithPaging(
+        this IAnsiConsole console,
+        TextReader textReader,
+        SpectreViewerOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(textReader);
 
         options ??= new SpectreViewerOptions();
 
         var renderBuffer = new RenderBuffer(options.RenderWidth, options.RenderHeight);
-        var pageContent = RenderEngine.Write(textReader, renderBuffer);
-        
-        Pager.Show(options.Console, pageContent, options);
+        var pageContent = RenderEngine.Write(textReader, renderBuffer, options);
+
+        Pager.Show(console, pageContent, options);
     }
 }

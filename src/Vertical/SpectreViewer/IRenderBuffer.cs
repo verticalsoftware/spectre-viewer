@@ -1,6 +1,6 @@
 ﻿namespace Vertical.SpectreViewer;
 
-public interface IRenderBuffer
+internal interface IRenderBuffer
 {
     int Width { get; }
     int Height { get; }

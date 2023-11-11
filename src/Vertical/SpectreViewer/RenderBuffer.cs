@@ -12,10 +12,9 @@ internal sealed class RenderBuffer : IRenderBuffer
 
     internal RenderBuffer(int width, int height)
     {
+        _buffer = new ArrayBufferWriter<char>((int)(height * width * 1.25));
         Height = height;
         Width = width;
-
-        _buffer = new ArrayBufferWriter<char>((int)(height * width * 1.25));
     }
 
     public int Width { get; }

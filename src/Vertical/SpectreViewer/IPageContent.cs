@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents content rendered to an indexed page.
 /// </summary>
-public interface IPageContent
+internal interface IPageContent
 {
     /// <summary>
     /// Gets content for the specified page index.
