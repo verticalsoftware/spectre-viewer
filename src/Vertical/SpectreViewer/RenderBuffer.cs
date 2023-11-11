@@ -23,9 +23,9 @@ internal sealed class RenderBuffer : IRenderBuffer
 
     public int LineCount => _breakPositions.Count;
 
-    public IPageContent GetPageContent()
+    public IPageContent GetPageContent(SpectreViewerOptions options)
     {
-        return new PageContent(Width, Height, _buffer, _breakPositions, _markupTags);
+        return new PageContent(options, _buffer, _breakPositions, _markupTags);
     }
 
     public void WriteWhitespace(int count = 1)

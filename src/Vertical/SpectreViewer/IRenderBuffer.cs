@@ -6,7 +6,7 @@ internal interface IRenderBuffer
     int Height { get; }
     int LineCount { get; }
     int Position { get; }
-    IPageContent GetPageContent();
+    IPageContent GetPageContent(SpectreViewerOptions options);
     void WriteWhitespace(int count = 1);
     void Write(ReadOnlySpan<char> span);
     void WriteLine();

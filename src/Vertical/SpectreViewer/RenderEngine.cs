@@ -8,10 +8,10 @@ internal static class RenderEngine
         SpectreViewerOptions options)
     {
         ReadStream(textReader, renderBuffer, options);
-        return renderBuffer.GetPageContent();
+        return renderBuffer.GetPageContent(options);
     }
 
-    private static void ReadStream(TextReader textReader, IRenderBuffer renderBuffer, SpectreViewerOptions options)
+    private static void ReadStream(TextReader textReader, IRenderBuffer buffer, SpectreViewerOptions options)
     {
         while (true)
         {
@@ -20,23 +20,23 @@ internal static class RenderEngine
             if (inputLine == null)
                 break;
             
-            ReadLine(inputLine, renderBuffer, options);
+            ReadLine(inputLine, buffer, options);
         }
     }
 
-    private static void ReadLine(string inputLine, IRenderBuffer writer, SpectreViewerOptions options)
+    private static void ReadLine(string inputLine, IRenderBuffer buffer, SpectreViewerOptions options)
     {
         // Fairly efficient check
         if (string.IsNullOrWhiteSpace(inputLine))
         {
-            writer.WriteLine();
+            buffer.WriteLine();
             return;
         }
 
         var preserveWs = options.PreserveLeadingWhiteSpace;
-        var tagPosition = writer.Position;
+        var tagPosition = buffer.Position;
         var span = inputLine.AsSpan();
-        var width = writer.Width;
+        var width = buffer.Width;
         
         // Read leading whitespace to determine indent
         var indent = 0;
@@ -61,9 +61,9 @@ internal static class RenderEngine
         {
             if (subIndent > 0)
             {
-                writer.WriteWhitespace(subIndent);
+                buffer.WriteWhitespace(subIndent);
                 //subIndent = 0;
-                tagPosition = writer.Position;
+                tagPosition = buffer.Position;
                 virtualCursor += subIndent;
             }
 
@@ -73,7 +73,7 @@ internal static class RenderEngine
                 var tagLength = GetMarkTagLength(tagSpan);
                 if (tagLength > 0)
                 {
-                    writer.AddMarkupTag(new string(tagSpan[..tagLength]), tagPosition);
+                    buffer.AddMarkupTag(new string(tagSpan[..tagLength]), tagPosition);
                     
                     // Skip reading this span any further
                     ptr += tagLength;
@@ -114,8 +114,8 @@ internal static class RenderEngine
                 }
                 
                 // Write up to w
-                writer.Write(span[..w]);
-                writer.WriteLine();
+                buffer.Write(span[..w]);
+                buffer.WriteLine();
 
                 ptr = w;
                 
@@ -156,14 +156,14 @@ internal static class RenderEngine
         if (preserveWs && virtualCursor > 0)
         {
             // Preserve whitespace in case no line break was made
-            writer.WriteWhitespace(subIndent);
+            buffer.WriteWhitespace(subIndent);
         }
 
-        writer.Write(span);
+        buffer.Write(span);
 
         if (virtualCursor > 0)
         {
-            writer.WriteLine();
+            buffer.WriteLine();
         }
     }
 

@@ -2,4 +2,9 @@
 
 using Vertical.SpectreViewer;
 
-SpectreConsoleViewer.MarkupWithPaging(File.OpenRead("troubleshoot.txt"));
+var options = new SpectreViewerOptions
+{
+    LineNumbers = true
+};
+
+SpectreConsoleViewer.MarkupWithPaging(File.OpenRead("troubleshoot.txt"), options);

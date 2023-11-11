@@ -5,6 +5,7 @@ namespace Vertical.SpectreViewer;
 
 internal sealed class PageContent : IPageContent
 {
+    internal const int LineNumberRenderWidth = 10;
     private readonly int _width;
     private readonly int _height;
     private readonly IReadOnlyList<BreakPosition> _breakPositions;
@@ -12,21 +13,22 @@ internal sealed class PageContent : IPageContent
     private readonly ArrayBufferWriter<char> _buffer;
     private readonly Dictionary<int, string> _cachedRenderedPages = new(128);
     private readonly Lazy<ILookup<int, string>> _lazyPageTags;
+    private readonly bool _lineNumbers;
 
     internal PageContent(
-        int width, 
-        int height,
+        SpectreViewerOptions options,
         ArrayBufferWriter<char> bufferWriter,
         IReadOnlyList<BreakPosition> breakPositions,
         IReadOnlyCollection<MarkupTag> markupTags)
     {
-        _width = width;
-        _height = height;
+        _width = options.RenderWidth;
+        _height = options.RenderHeight;
+        _lineNumbers = options.LineNumbers;
         _breakPositions = breakPositions;
         _markupTags = markupTags;
         _buffer = bufferWriter;
         _lazyPageTags = new Lazy<ILookup<int, string>>(BuildPageTagLookup);
-        PageCount = _breakPositions.Count / height + 1;
+        PageCount = _breakPositions.Count / _height + 1;
     }
 
     /// <summary>
@@ -52,7 +54,7 @@ internal sealed class PageContent : IPageContent
         }
         
         var span = _buffer.WrittenSpan[lower..upper];
-        sb.Append(span);
+        BuildRenderContent(sb, span, index);
         
         foreach (var tag in GetCloseTags(index))
         {
@@ -63,6 +65,40 @@ internal sealed class PageContent : IPageContent
         _cachedRenderedPages[index] = completeRender;
         
         return completeRender; 
+    }
+
+    private void BuildRenderContent(StringBuilder sb, ReadOnlySpan<char> span, int index)
+    {
+        if (!_lineNumbers)
+        {
+            sb.Append(span);
+            return;
+        }
+        
+        var lineId = index * _height;
+        var digits = (int)Math.Floor(Math.Log10(_breakPositions.Count) + 1);
+        var digitFormat = new string('0', digits);
+        var lineFormat = $"[grey46]{{0:{digitFormat}}}[/]  ";
+
+        while (span.Length > 0)
+        {
+            sb.Append(string.Format(lineFormat, lineId));            
+            var p = 0;
+            for (; p < span.Length && span[p] != '\n'; p++)
+            {
+            }
+
+            if (p < span.Length)
+                p++;
+            
+            sb.Append(span[..p]);
+
+            if (p >= span.Length)
+                break;
+            
+            span = span[p..];
+            lineId++;
+        }
     }
     
     private ILookup<int, string> BuildPageTagLookup()

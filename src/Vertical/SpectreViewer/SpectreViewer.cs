@@ -123,7 +123,11 @@ public static class SpectreConsoleViewer
 
         options ??= new SpectreViewerOptions();
 
-        var renderBuffer = new RenderBuffer(options.RenderWidth, options.RenderHeight);
+        var contentWidth = options.LineNumbers
+            ? options.RenderWidth - PageContent.LineNumberRenderWidth
+            : options.RenderWidth;
+        
+        var renderBuffer = new RenderBuffer(contentWidth, options.RenderHeight);
         var pageContent = RenderEngine.Write(textReader, renderBuffer, options);
 
         Pager.Show(console, pageContent, options);

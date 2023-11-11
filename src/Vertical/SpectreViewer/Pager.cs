@@ -13,6 +13,7 @@ internal static class Pager
         catch
         {
             AnsiConsole.WriteLine("Rendering stopped.");
+            throw;
         }
     }
     
