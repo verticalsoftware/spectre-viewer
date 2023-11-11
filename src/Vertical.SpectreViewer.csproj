@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace />
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" Version="0.47.1-preview.0.36" />
+  </ItemGroup>
+
+</Project>
