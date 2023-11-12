@@ -4,7 +4,6 @@ namespace Vertical.SpectreViewer;
 
 internal sealed class RenderBuffer : IRenderBuffer
 {
-    private readonly char[] _environmentNewLineChars = Environment.NewLine.ToCharArray();
     private readonly ArrayBufferWriter<char> _buffer;
     private readonly List<BreakPosition> _breakPositions = new(5000);
     private readonly List<MarkupTag> _markupTags = new(512);
@@ -46,7 +45,7 @@ internal sealed class RenderBuffer : IRenderBuffer
         var length = position - _bufferMark;
         _breakPositions.Add(new BreakPosition(_bufferMark, length));
         _bufferMark = position;
-        Write(_environmentNewLineChars);
+        Write(Constants.NewLineChars);
     }
 
     public int Position => _buffer.WrittenCount;

@@ -23,7 +23,7 @@ internal static class Pager
         var height = options.RenderHeight;
         var index = 0;
         var clearText = new string(' ', width - 1);
-        var cursorBottom = height + ComputedRenderingOptions.BottomMargin;
+        var cursorBottom = height + Constants.BottomMarginSpace;
         
         while (true)
         {

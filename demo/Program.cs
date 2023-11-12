@@ -4,9 +4,7 @@ using Vertical.SpectreViewer;
 
 var options = new SpectreViewerOptions
 {
-    LineNumbers = true,
-    RenderWidth = 188,
-    RenderHeight = 60
+    LineNumbers = true
 };
 
 SpectreConsoleViewer.MarkupWithPaging(File.OpenRead("troubleshoot.txt"), options);

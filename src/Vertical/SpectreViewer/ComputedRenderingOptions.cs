@@ -2,9 +2,6 @@
 
 internal sealed class ComputedRenderingOptions
 {
-    private const int RightMargin = 4;
-    internal const int BottomMargin = 2;
-    
     internal ComputedRenderingOptions(SpectreViewerOptions options)
     {
         RenderWidth = options.RenderWidth;
@@ -12,8 +9,8 @@ internal sealed class ComputedRenderingOptions
         LineNumbers = options.LineNumbers;
         OverlapHeight = options.OverlapHeight;
         PreserveLeadingWhiteSpace = options.PreserveLeadingWhiteSpace;
-        InternalWidth = RenderWidth - RightMargin - (LineNumbers ? PageContent.LineNumberRenderWidth : 0);
-        InternalHeight = RenderHeight - BottomMargin;
+        InternalWidth = RenderWidth - Constants.RightMarginSpace - (LineNumbers ? PageContent.LineNumberRenderWidth : 0);
+        InternalHeight = RenderHeight - Constants.BottomMarginSpace;
     }
 
     internal int InternalHeight { get; set; }

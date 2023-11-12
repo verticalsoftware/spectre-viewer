@@ -14,6 +14,7 @@ internal sealed class PageContent : IPageContent
     private readonly Dictionary<int, string> _cachedRenderedPages = new(128);
     private readonly Lazy<ILookup<int, string>> _lazyPageTags;
     private readonly bool _lineNumbers;
+    private readonly int _overlapHeight;
 
     internal PageContent(
         ComputedRenderingOptions options,
@@ -22,7 +23,8 @@ internal sealed class PageContent : IPageContent
         IReadOnlyCollection<MarkupTag> markupTags)
     {
         _width = options.InternalWidth;
-        _height = options.InternalHeight;
+        _height = options.InternalHeight - options.OverlapHeight;
+        _overlapHeight = options.OverlapHeight;
         _lineNumbers = options.LineNumbers;
         _breakPositions = breakPositions;
         _markupTags = markupTags;
@@ -153,6 +155,17 @@ internal sealed class PageContent : IPageContent
         var endCharIndex = endBreakIndex < _breakPositions.Count
             ? _breakPositions[endBreakIndex].Position
             : _buffer.WrittenCount;
+        
+        // Cut off the leading new line if present
+        var newLineChars = Constants.NewLineChars;
+        var length = endCharIndex - startCharIndex;
+        var span = _buffer.WrittenSpan;
+        
+        for (var c = 0; length >= 2 && c < newLineChars.Length; c++)
+        {
+            if (span[startCharIndex] == newLineChars[c])
+                startCharIndex++;
+        }
 
         return (startCharIndex, endCharIndex);
     }
