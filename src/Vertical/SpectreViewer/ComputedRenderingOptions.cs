@@ -7,7 +7,6 @@ internal sealed class ComputedRenderingOptions
         RenderWidth = options.RenderWidth;
         RenderHeight = options.RenderHeight;
         LineNumbers = options.LineNumbers;
-        OverlapHeight = options.OverlapHeight;
         PreserveLeadingWhiteSpace = options.PreserveLeadingWhiteSpace;
         InternalWidth = RenderWidth - Constants.RightMarginSpace - (LineNumbers ? PageContent.LineNumberRenderWidth : 0);
         InternalHeight = RenderHeight - Constants.BottomMarginSpace;
@@ -18,8 +17,6 @@ internal sealed class ComputedRenderingOptions
     internal int InternalWidth { get; set; }
 
     internal bool PreserveLeadingWhiteSpace { get; set; }
-
-    internal int OverlapHeight { get; set; }
 
     internal bool LineNumbers { get; set; }
 

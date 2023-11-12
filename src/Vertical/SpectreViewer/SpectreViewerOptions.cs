@@ -16,11 +16,6 @@ public sealed class SpectreViewerOptions
     /// Gets the render height (defaults to the console height minus some padding).
     /// </summary>
     public int RenderHeight { get; init; } = AnsiConsole.Profile.Height;
-
-    /// <summary>
-    /// Gets the number of rows to overlap when splitting rows between pages.
-    /// </summary>
-    public int OverlapHeight { get; init; } = 4;
     
     /// <summary>
     /// Gets whether to display line numbers for troubleshooting purposes.

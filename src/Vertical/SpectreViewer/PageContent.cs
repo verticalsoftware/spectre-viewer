@@ -14,7 +14,6 @@ internal sealed class PageContent : IPageContent
     private readonly Dictionary<int, string> _cachedRenderedPages = new(128);
     private readonly Lazy<ILookup<int, string>> _lazyPageTags;
     private readonly bool _lineNumbers;
-    private readonly int _overlapHeight;
 
     internal PageContent(
         ComputedRenderingOptions options,
@@ -23,8 +22,7 @@ internal sealed class PageContent : IPageContent
         IReadOnlyCollection<MarkupTag> markupTags)
     {
         _width = options.InternalWidth;
-        _height = options.InternalHeight - options.OverlapHeight;
-        _overlapHeight = options.OverlapHeight;
+        _height = options.InternalHeight;
         _lineNumbers = options.LineNumbers;
         _breakPositions = breakPositions;
         _markupTags = markupTags;
@@ -133,8 +131,12 @@ internal sealed class PageContent : IPageContent
                 
                 if (top.Type == MarkupType.Opening)
                     stack.Push(top);
-                else
+                else if (stack.Count > 0)
                     stack.Pop();
+                else
+                    throw new InvalidOperationException(
+                        "Markup stack unbalanced, encountered closing tag with no matching " +
+                        $"opening tag @{top.LineId}:{top.Position}");
             }
             
             // The stack contains open tags, which must be closed before the page is rendered - mark
@@ -143,8 +145,12 @@ internal sealed class PageContent : IPageContent
                 Range(0, stack.Count)
                 .Select(_ => new KeyValuePair<int, string>(page, "[/]")));
         }
+
+        if (!stack.Any()) 
+            return writeTags.ToLookup(e => e.Key, e => e.Value);
         
-        return writeTags.ToLookup(e => e.Key, e => e.Value);
+        var tag = stack.Pop();
+        throw new InvalidOperationException($"Markup stack unbalanced (unclosed tag={tag.Value} @{tag.LineId}:{tag.Position})");
     }
 
     private (int Lower, int Upper) GetPageCharRange(int index)

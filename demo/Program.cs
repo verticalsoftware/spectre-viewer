@@ -7,4 +7,4 @@ var options = new SpectreViewerOptions
     LineNumbers = true
 };
 
-SpectreConsoleViewer.MarkupWithPaging(File.OpenRead("troubleshoot.txt"), options);
+SpectreConsoleViewer.MarkupWithPaging(File.OpenRead("grep.txt"), options);
