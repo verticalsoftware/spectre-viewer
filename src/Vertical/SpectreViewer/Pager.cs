@@ -4,7 +4,7 @@ namespace Vertical.SpectreViewer;
 
 internal static class Pager
 {
-    internal static void Show(IAnsiConsole console, IPageContent content, SpectreViewerOptions options)
+    internal static void Show(IAnsiConsole console, IPageContent content, ComputedRenderingOptions options)
     {
         try
         {
@@ -17,13 +17,13 @@ internal static class Pager
         }
     }
     
-    internal static void ShowInCatch(IAnsiConsole console, IPageContent content, SpectreViewerOptions options)
+    internal static void ShowInCatch(IAnsiConsole console, IPageContent content, ComputedRenderingOptions options)
     {
         var width = options.RenderWidth;
         var height = options.RenderHeight;
         var index = 0;
         var clearText = new string(' ', width - 1);
-        var cursorBottom = height + SpectreViewerOptions.BottomMargin;
+        var cursorBottom = height + ComputedRenderingOptions.BottomMargin;
         
         while (true)
         {
@@ -88,6 +88,10 @@ internal static class Pager
                     case { Key: ConsoleKey.Escape }:
                         return;
                     
+                    case { Key: ConsoleKey.Oem2, Modifiers: ConsoleModifiers.Shift } when options.LineNumbers:
+                        prompt = $"Console: {Console.WindowWidth}w, {Console.WindowHeight}h";
+                        break;
+                    
                     default:
                         var commands = new List<string>(6);
                         if (!top)
@@ -109,7 +113,7 @@ internal static class Pager
         }
     }
 
-    private static void TryPrintMarkup(IAnsiConsole console, string str, int page, SpectreViewerOptions options)
+    private static void TryPrintMarkup(IAnsiConsole console, string str, int page, ComputedRenderingOptions options)
     {
         var restoreColor = AnsiConsole.Foreground;
 
@@ -119,8 +123,8 @@ internal static class Pager
         }
         catch (Exception exception)
         {
-            var lowerLine = options.RenderHeight * page + 1;
-            var upperLine = lowerLine + options.RenderHeight;
+            var lowerLine = options.InternalHeight * page + 1;
+            var upperLine = lowerLine + options.InternalHeight;
             AnsiConsole.Markup("[red]Markup error:[/] ");
             AnsiConsole.MarkupLine(exception.Message);
             AnsiConsole.MarkupLine("Error occurred while rendering page [darkorange]{0}[/], which are lines "

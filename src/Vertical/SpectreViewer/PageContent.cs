@@ -16,13 +16,13 @@ internal sealed class PageContent : IPageContent
     private readonly bool _lineNumbers;
 
     internal PageContent(
-        SpectreViewerOptions options,
+        ComputedRenderingOptions options,
         ArrayBufferWriter<char> bufferWriter,
         IReadOnlyList<BreakPosition> breakPositions,
         IReadOnlyCollection<MarkupTag> markupTags)
     {
-        _width = options.RenderWidth;
-        _height = options.RenderHeight;
+        _width = options.InternalWidth;
+        _height = options.InternalHeight;
         _lineNumbers = options.LineNumbers;
         _breakPositions = breakPositions;
         _markupTags = markupTags;
@@ -92,9 +92,6 @@ internal sealed class PageContent : IPageContent
                 p++;
             
             sb.Append(span[..p]);
-
-            if (p >= span.Length)
-                break;
             
             span = span[p..];
             lineId++;

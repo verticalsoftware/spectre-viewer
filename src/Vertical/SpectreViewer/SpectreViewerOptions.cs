@@ -7,18 +7,15 @@ namespace Vertical.SpectreViewer;
 /// </summary>
 public sealed class SpectreViewerOptions
 {
-    private const int RightMargin = 4;
-    internal const int BottomMargin = 4;
-    
     /// <summary>
     /// Gets the render width (defaults to the console width minus some padding).
     /// </summary>
-    public int RenderWidth { get; init; } = AnsiConsole.Profile.Width - RightMargin;
+    public int RenderWidth { get; init; } = AnsiConsole.Profile.Width;
 
     /// <summary>
     /// Gets the render height (defaults to the console height minus some padding).
     /// </summary>
-    public int RenderHeight { get; init; } = AnsiConsole.Profile.Height - BottomMargin;
+    public int RenderHeight { get; init; } = AnsiConsole.Profile.Height;
 
     /// <summary>
     /// Gets the number of rows to overlap when splitting rows between pages.

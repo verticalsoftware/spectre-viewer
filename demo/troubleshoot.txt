@@ -140,5 +140,5 @@ Tools & utilities to export data from relational databases to different formats.
         
     [deepskyblue1]-u, --user[/] <[fuchsia]ID[/]>
     
-        The login id of the user account that has the required read access to the database. This can be a literal user id or configuration secret.        
+        The login id of the user account that has the required read access to the database. This can be a literal user id or configuration secret.
 [/]

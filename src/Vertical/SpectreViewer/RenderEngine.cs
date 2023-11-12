@@ -1,17 +1,19 @@
-﻿namespace Vertical.SpectreViewer;
+﻿using System.Diagnostics;
+
+namespace Vertical.SpectreViewer;
 
 internal static class RenderEngine
 {
     internal static IPageContent Write(
         TextReader textReader, 
         IRenderBuffer renderBuffer,
-        SpectreViewerOptions options)
+        ComputedRenderingOptions options)
     {
         ReadStream(textReader, renderBuffer, options);
         return renderBuffer.GetPageContent(options);
     }
 
-    private static void ReadStream(TextReader textReader, IRenderBuffer buffer, SpectreViewerOptions options)
+    private static void ReadStream(TextReader textReader, IRenderBuffer buffer, ComputedRenderingOptions options)
     {
         while (true)
         {
@@ -24,7 +26,7 @@ internal static class RenderEngine
         }
     }
 
-    private static void ReadLine(string inputLine, IRenderBuffer buffer, SpectreViewerOptions options)
+    private static void ReadLine(string inputLine, IRenderBuffer buffer, ComputedRenderingOptions options)
     {
         // Fairly efficient check
         if (string.IsNullOrWhiteSpace(inputLine))
@@ -36,7 +38,7 @@ internal static class RenderEngine
         var preserveWs = options.PreserveLeadingWhiteSpace;
         var tagPosition = buffer.Position;
         var span = inputLine.AsSpan();
-        var width = buffer.Width;
+        var width = options.InternalWidth;
         
         // Read leading whitespace to determine indent
         var indent = 0;

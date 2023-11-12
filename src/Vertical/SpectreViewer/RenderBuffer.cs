@@ -13,17 +13,11 @@ internal sealed class RenderBuffer : IRenderBuffer
     internal RenderBuffer(int width, int height)
     {
         _buffer = new ArrayBufferWriter<char>((int)(height * width * 1.25));
-        Height = height;
-        Width = width;
     }
-
-    public int Width { get; }
-
-    public int Height { get; }
 
     public int LineCount => _breakPositions.Count;
 
-    public IPageContent GetPageContent(SpectreViewerOptions options)
+    public IPageContent GetPageContent(ComputedRenderingOptions options)
     {
         return new PageContent(options, _buffer, _breakPositions, _markupTags);
     }

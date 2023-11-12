@@ -121,15 +121,11 @@ public static class SpectreConsoleViewer
     {
         ArgumentNullException.ThrowIfNull(textReader);
 
-        options ??= new SpectreViewerOptions();
-
-        var contentWidth = options.LineNumbers
-            ? options.RenderWidth - PageContent.LineNumberRenderWidth
-            : options.RenderWidth;
+        var renderOptions = new ComputedRenderingOptions(options ?? new SpectreViewerOptions());
         
-        var renderBuffer = new RenderBuffer(contentWidth, options.RenderHeight);
-        var pageContent = RenderEngine.Write(textReader, renderBuffer, options);
+        var renderBuffer = new RenderBuffer(renderOptions.InternalWidth, renderOptions.InternalHeight);
+        var pageContent = RenderEngine.Write(textReader, renderBuffer, renderOptions);
 
-        Pager.Show(console, pageContent, options);
+        Pager.Show(console, pageContent, renderOptions);
     }
 }
