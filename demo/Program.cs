@@ -4,7 +4,10 @@ using Vertical.SpectreViewer;
 
 var options = new SpectreViewerOptions
 {
-    LineNumbers = true
+    LineNumbers = true,
+    RenderHeight = 12,
+    RenderWidth = 80,
+    PageOverlapRows = 0
 };
 
-SpectreConsoleViewer.MarkupWithPaging(File.OpenRead("grep.txt"), options);
+SpectreConsoleViewer.MarkupWithPaging(File.OpenRead("xp.txt"), options);

@@ -27,4 +27,15 @@ public sealed class SpectreViewerOptions
     /// when they are split due to the length exceeding the console width.
     /// </summary>
     public bool PreserveLeadingWhiteSpace { get; init; } = true;
+
+    /// <summary>
+    /// Gets the number of rows to overlap when paging, e.g. the number of rows from the previous
+    /// page to display on the next page.
+    /// </summary>
+    public int PageOverlapRows { get; init; } = 3;
+
+    /// <summary>
+    /// Gets the color palette
+    /// </summary>
+    public Dictionary<string, string> ColorPalette { get; init; } = new();
 }

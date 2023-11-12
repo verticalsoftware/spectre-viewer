@@ -121,11 +121,22 @@ public static class SpectreConsoleViewer
     {
         ArgumentNullException.ThrowIfNull(textReader);
 
-        var renderOptions = new ComputedRenderingOptions(options ?? new SpectreViewerOptions());
-        
-        var renderBuffer = new RenderBuffer(renderOptions.InternalWidth, renderOptions.InternalHeight);
-        var pageContent = RenderEngine.Write(textReader, renderBuffer, renderOptions);
+        MarkupWithPaging(console, textReader, new ComputedRenderingOptions(options ?? new SpectreViewerOptions(),
+            internalHelpMode: false));
+    }
+    
+    internal static void MarkupWithPaging(
+        this IAnsiConsole console,
+        TextReader textReader,
+        ComputedRenderingOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(textReader);
 
-        Pager.Show(console, pageContent, renderOptions);
+        var buffer = new RenderBuffer(options);
+        var formattingEngine = new FormattingEngine(options, buffer);
+        formattingEngine.ReadStream(textReader);
+        
+        var pager = new Pager(console, options, buffer.GetStreamContent());
+        pager.EnterPagingMode();
     }
 }

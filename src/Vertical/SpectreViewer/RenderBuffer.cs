@@ -1,64 +1,52 @@
-﻿using System.Buffers;
+﻿using System.Text;
 
 namespace Vertical.SpectreViewer;
 
-internal sealed class RenderBuffer : IRenderBuffer
+internal sealed class RenderBuffer
 {
-    private readonly ArrayBufferWriter<char> _buffer;
-    private readonly List<BreakPosition> _breakPositions = new(5000);
-    private readonly List<MarkupTag> _markupTags = new(512);
-    private int _bufferMark;
+    private readonly ComputedRenderingOptions _options;
+    private readonly StringBuilder _buffer;
+    private readonly List<string> _lines = new(20000);
+    private bool _beginLineCalled;
 
-    internal RenderBuffer(int width, int height)
+    internal RenderBuffer(ComputedRenderingOptions options)
     {
-        _buffer = new ArrayBufferWriter<char>((int)(height * width * 1.25));
+        _options = options;
+        _buffer = new StringBuilder(options.RenderWidth * 2);
     }
 
-    public int LineCount => _breakPositions.Count;
-
-    public IPageContent GetPageContent(ComputedRenderingOptions options)
+    internal StreamContent GetStreamContent()
     {
-        return new PageContent(options, _buffer, _breakPositions, _markupTags);
+        return new StreamContent(_lines, _options);
     }
 
-    public void WriteWhitespace(int count = 1)
+    internal void Write(ReadOnlySpan<char> span)
     {
-        if (count == 0)
+        if (span.Length == 0) return;
+        _buffer.Append(span);
+    }
+
+    internal void WriteWhiteSpace(int count)
+    {
+        _buffer.Append(' ', count);
+    }
+
+    internal void BeginLine()
+    {
+        FlushBuffer();
+        _beginLineCalled = true;
+    }
+
+    internal void Close() => FlushBuffer();
+
+    internal string Content => string.Join(Environment.NewLine, _lines);
+
+    private void FlushBuffer()
+    {
+        if (!_beginLineCalled)
             return;
-
-        var span = _buffer.GetSpan(count);
-        for (var c = 0; c < count; c++)
-        {
-            span[c] = ' ';
-        }
-        _buffer.Advance(count);
-    }
-
-    public void Write(ReadOnlySpan<char> span)
-    {
-        _buffer.Write(span);
-    }
-
-    public void WriteLine()
-    {
-        var position = _buffer.WrittenCount;
-        var length = position - _bufferMark;
-        _breakPositions.Add(new BreakPosition(_bufferMark, length));
-        _bufferMark = position;
-        Write(Constants.NewLineChars);
-    }
-
-    public int Position => _buffer.WrittenCount;
-
-    /// <inheritdoc />
-    public override string ToString() => new(_buffer.WrittenSpan);
-
-    public void AddMarkupTag(string tag, int position)
-    {
-        _markupTags.Add(new MarkupTag(
-            tag == "[/]" ? MarkupType.Closing : MarkupType.Opening,
-            position, 
-            new string(tag),
-            _breakPositions.Count));
+        
+        _lines.Add(_buffer.ToString());
+        _buffer.Clear();
     }
 }
