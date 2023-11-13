@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using System.Text;
+using Spectre.Console;
 
 namespace Vertical.SpectreViewer;
 
@@ -39,29 +40,28 @@ internal class Pager
     internal void EnterPagingMode()
     {
         var offset = _streamContent.LowerOffset;
-        var lastRenderedRange = RenderRange.Empty;
+        var lastRenderedRange = RenderInfo.Empty;
         
         while (true)
         {
-            var renderRange = _streamContent.GetRenderOffset(offset);
+            var renderInfo = _streamContent.GetRenderInfo(offset);
 
-            if (offset < renderRange.LowerBound)
+            if (offset < renderInfo.LowerBound)
             {
-                offset = renderRange.LowerBound;
+                offset = renderInfo.LowerBound;
             }
-            else if (offset > renderRange.LowerBound)
+            else if (offset > renderInfo.LowerBound)
             {
-                offset = renderRange.LowerBound;
+                offset = renderInfo.LowerBound;
             }
             
             // Print again?
-            if (!renderRange.Equals(lastRenderedRange))
+            if (!renderInfo.Equals(lastRenderedRange))
             {
-                PrintPage(renderRange);
-                lastRenderedRange = renderRange;
-            }
-
-                        
+                PrintPage(renderInfo);
+                lastRenderedRange = renderInfo;
+                PrintPrompt(renderInfo);
+            }                    
 
             switch (GetUserCommand())
             {
@@ -94,25 +94,31 @@ internal class Pager
                     break;
                 case UserCommand.Help when !_options.InternalHelpMode:
                     ShowInternalHelp();
-                    lastRenderedRange = RenderRange.Empty;
+                    lastRenderedRange = RenderInfo.Empty;
                     break;
             }
         }
     }
 
-    private void PrintPage(RenderRange range)
+    private void PrintPage(RenderInfo info)
     {
-        var pageContent = _streamContent.GetPageContent(range);
+        var pageContent = _streamContent.GetPageContent(info);
         _console.Clear();
         _console.Markup(pageContent);
     }
 
-    private void PrintPrompt(string? message = null)
+    private void PrintPrompt(RenderInfo renderInfo)
+    {
+        var prompt = $"{renderInfo.LowerBound+1}-{renderInfo.UpperBound}/{renderInfo.RowCount}: ";
+        PrintPrompt(prompt);
+    }
+    
+    private void PrintPrompt(string message)
     {
         _console.Cursor.SetPosition(_inputPosition.Column, _inputPosition.Line);
         _console.Write(_clearText);
         _console.Cursor.SetPosition(_inputPosition.Column, _inputPosition.Line);
-        _console.Write(message ?? "I'm here");
+        _console.Write(message);
     }
 
     private UserCommand GetUserCommand()
@@ -139,7 +145,7 @@ internal class Pager
             { Key: ConsoleKey.G } => UserCommand.FirstPage,
             { Key: ConsoleKey.Escape } => UserCommand.Quit,
             { Key: ConsoleKey.Q } => UserCommand.Quit,
-            { Key: ConsoleKey.Oem2, Modifiers: ConsoleModifiers.Shift } => UserCommand.Help,
+            { KeyChar: '?' } => UserCommand.Help,
             { Key: ConsoleKey.H } => UserCommand.Help,
             _ => UserCommand.Unknown
         };

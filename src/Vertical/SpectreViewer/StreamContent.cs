@@ -19,30 +19,39 @@ internal class StreamContent
     internal int LowerOffset => _lines.Count > 0 ? 0 : -1;
 
     internal int UpperOffset => _lines.Count > 0 ? _lines.Count : -1;
-    
+
     internal int PageRowCount => _options.InternalHeight - _options.PageOverlapRows;
 
-    internal int PageCount => _lines.Count > 0 ? PageRowCount / _lines.Count + 1 : 0;
+    internal int PageCount => _lines.Count > 0 ? _lines.Count / PageRowCount + 1 : 0;
 
-    internal RenderRange GetRenderOffset(int offset)
+    internal RenderInfo GetRenderInfo(int offset)
     {
         var upperBound = Math.Min(_lines.Count, Math.Max(0, offset) + PageRowCount);
         var lowerBound = Math.Max(0, upperBound - PageRowCount);
-        return new RenderRange(lowerBound, upperBound);
+        var pageId = lowerBound / PageRowCount + 1;
+        
+        return new RenderInfo(
+            lowerBound, 
+            upperBound,
+            lowerBound == 0,
+            lowerBound == PageCount * PageRowCount,
+            pageId,
+            PageCount,
+            _lines.Count);
     }
 
-    internal string GetPageContent(RenderRange range)
+    internal string GetPageContent(RenderInfo info)
     {
         return _options.LineNumbers
-            ? BuildAnnotatedPageContent(range)
-            : BuildPageContent(range);
+            ? BuildAnnotatedPageContent(info)
+            : BuildPageContent(info);
     }
 
-    private string BuildAnnotatedPageContent(RenderRange range)
+    private string BuildAnnotatedPageContent(RenderInfo info)
     {
         var lineFormat = _lazyLineFormat.Value;
         _buffer.Clear();
-        for (var c = range.LowerBound; c < range.UpperBound; c++)
+        for (var c = info.LowerBound; c < info.UpperBound; c++)
         {
             _buffer.Append(string.Format(lineFormat, c));
             _buffer.AppendLine(_lines[c]);
@@ -51,10 +60,10 @@ internal class StreamContent
         return _buffer.ToString();
     }
 
-    private string BuildPageContent(RenderRange range)
+    private string BuildPageContent(RenderInfo info)
     {
         _buffer.Clear();
-        for (var c = range.LowerBound; c < range.UpperBound; c++)
+        for (var c = info.LowerBound; c < info.UpperBound; c++)
         {
             _buffer.AppendLine(_lines[c]);
         }

@@ -7,6 +7,7 @@ internal sealed class RenderBuffer
     private readonly ComputedRenderingOptions _options;
     private readonly StringBuilder _buffer;
     private readonly List<string> _lines = new(20000);
+    private readonly List<MarkupTag> _markupTags = new(1000);
     private bool _beginLineCalled;
 
     internal RenderBuffer(ComputedRenderingOptions options)
@@ -18,6 +19,24 @@ internal sealed class RenderBuffer
     internal StreamContent GetStreamContent()
     {
         return new StreamContent(_lines, _options);
+    }
+
+    internal void AddOpeningMarkupTag(int position, string value)
+    {
+        AddMarkupTag(MarkupType.Opening, position, value);
+    }
+
+    internal void AddClosingMarkupTag(int position)
+    {
+        AddMarkupTag(MarkupType.Closing, position, MarkupTag.CloseTag);
+    }
+
+    private void AddMarkupTag(MarkupType type, int position, string value)
+    {
+        _markupTags.Add(new MarkupTag(
+            type,
+            _lines.Count,
+            value));
     }
 
     internal void Write(ReadOnlySpan<char> span)
