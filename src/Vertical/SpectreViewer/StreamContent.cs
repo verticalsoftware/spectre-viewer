@@ -6,14 +6,19 @@ internal class StreamContent
 {
     private readonly IReadOnlyList<string> _lines;
     private readonly ComputedRenderingOptions _options;
-    private readonly StringBuilder _buffer = new(32000);
+    private readonly StringBuilder _stringBuilder = new(32000);
     private readonly Lazy<string> _lazyLineFormat;
+    private readonly MarkupTagManager _markupTagManager;
 
-    internal StreamContent(IReadOnlyList<string> lines, ComputedRenderingOptions options)
+    internal StreamContent(
+        IReadOnlyList<string> lines,
+        IEnumerable<MarkupTag> markupTags,
+        ComputedRenderingOptions options)
     {
         _lines = lines;
         _options = options;
         _lazyLineFormat = new Lazy<string>(BuildLineFormat(lines.Count));
+        _markupTagManager = new MarkupTagManager(markupTags, lines.Count);
     }
 
     internal int LowerOffset => _lines.Count > 0 ? 0 : -1;
@@ -29,9 +34,9 @@ internal class StreamContent
         var upperBound = Math.Min(_lines.Count, Math.Max(0, offset) + PageRowCount);
         var lowerBound = Math.Max(0, upperBound - PageRowCount);
         var pageId = lowerBound / PageRowCount + 1;
-        
+
         return new RenderInfo(
-            lowerBound, 
+            lowerBound,
             upperBound,
             lowerBound == 0,
             lowerBound == PageCount * PageRowCount,
@@ -47,28 +52,29 @@ internal class StreamContent
             : BuildPageContent(info);
     }
 
-    private string BuildAnnotatedPageContent(RenderInfo info)
+    private string BuildAnnotatedPageContent(RenderInfo renderInfo) =>
+        BuildPageContent(renderInfo, _lazyLineFormat.Value);
+
+    private string BuildPageContent(RenderInfo renderInfo) => BuildPageContent(renderInfo, null);
+
+    private string BuildPageContent(RenderInfo renderInfo, string? lineFormat)
     {
-        var lineFormat = _lazyLineFormat.Value;
-        _buffer.Clear();
-        for (var c = info.LowerBound; c < info.UpperBound; c++)
+        _stringBuilder.Clear();
+
+        _markupTagManager.WriteOpenTags(_stringBuilder, renderInfo);
+        
+        for (var c = renderInfo.LowerBound; c < renderInfo.UpperBound; c++)
         {
-            _buffer.Append(string.Format(lineFormat, c));
-            _buffer.AppendLine(_lines[c]);
+            if (lineFormat != null)
+            {
+                _stringBuilder.Append(string.Format(lineFormat, c));
+            }
+
+            _stringBuilder.AppendLine(_lines[c]);
         }
+        _markupTagManager.WriteCloseTags(_stringBuilder, renderInfo);
 
-        return _buffer.ToString();
-    }
-
-    private string BuildPageContent(RenderInfo info)
-    {
-        _buffer.Clear();
-        for (var c = info.LowerBound; c < info.UpperBound; c++)
-        {
-            _buffer.AppendLine(_lines[c]);
-        }
-
-        return _buffer.ToString();
+        return _stringBuilder.ToString();
     }
 
     private static string BuildLineFormat(int linesCount)

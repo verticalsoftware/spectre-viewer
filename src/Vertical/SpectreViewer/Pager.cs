@@ -34,7 +34,7 @@ internal class Pager
         _options = options;
         _streamContent = streamContent;
         _inputPosition = (1, console.Profile.Height);
-        _clearText = new string(' ', console.Profile.Width);
+        _clearText = new string(' ', console.Profile.Width );
     }
 
     internal void EnterPagingMode()
@@ -93,7 +93,7 @@ internal class Pager
                     offset = _streamContent.UpperOffset;
                     break;
                 case UserCommand.Help when !_options.InternalHelpMode:
-                    ShowInternalHelp();
+                    ShowInternalHelp(_console);
                     lastRenderedRange = RenderInfo.Empty;
                     break;
             }
@@ -115,10 +115,15 @@ internal class Pager
     
     private void PrintPrompt(string message)
     {
+        MoveToPromptAndClear();
+        _console.Write(message);
+    }
+
+    private void MoveToPromptAndClear()
+    {
         _console.Cursor.SetPosition(_inputPosition.Column, _inputPosition.Line);
         _console.Write(_clearText);
         _console.Cursor.SetPosition(_inputPosition.Column, _inputPosition.Line);
-        _console.Write(message);
     }
 
     private UserCommand GetUserCommand()
@@ -151,10 +156,20 @@ internal class Pager
         };
     }
 
-    private void ShowInternalHelp()
+    private void ShowInternalHelp(IAnsiConsole console)
     {
-        var options = new ComputedRenderingOptions(_options.CallerOptions, internalHelpMode: true);
-        using var contentReader = new StringReader(InternalHelpContent.Value);
-        _console.MarkupWithPaging(contentReader, options);
+        var help = InternalHelpContent.Values;
+        var center = console.Profile.Width / 2 - help[0].Length / 2;
+        var top = console.Profile.Height / 2 - help.Length / 2;
+        
+        foreach(var line in help)
+        {
+            console.Cursor.SetPosition(center, top++);
+            console.Markup($"[white on grey15]{line}[/]");
+        }
+
+        MoveToPromptAndClear();
+        console.Write("Press any key.. ");
+        console.Input.ReadKey(intercept: true);
     }
 }

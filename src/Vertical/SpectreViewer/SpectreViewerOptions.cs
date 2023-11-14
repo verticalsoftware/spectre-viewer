@@ -37,5 +37,5 @@ public sealed class SpectreViewerOptions
     /// <summary>
     /// Gets the color palette
     /// </summary>
-    public Dictionary<string, string> ColorPalette { get; init; } = new();
+    public Dictionary<string, string> Styles { get; init; } = new();
 }

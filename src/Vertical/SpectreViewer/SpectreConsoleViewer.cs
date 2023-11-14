@@ -55,6 +55,17 @@ public static class SpectreConsoleViewer
         using var reader = new StringReader(stringBuilder.ToString());
         MarkupWithPaging(console, reader, options);
     }
+
+    /// <summary>
+    /// Renders the content read form the provided <see cref="Stream"/> to the console defined in the static
+    /// <see cref="AnsiConsole"/> type.
+    /// </summary>
+    /// <param name="path">Path to the help file.</param>
+    /// <param name="options">Options.</param>
+    public static void MarkupFileWithPaging(string path, SpectreViewerOptions? options = null)
+    {
+        MarkupWithPaging(File.OpenRead(path), options);
+    }
     
     /// <summary>
     /// Renders the content read form the provided <see cref="Stream"/> to the console defined in the static
@@ -133,7 +144,7 @@ public static class SpectreConsoleViewer
         ArgumentNullException.ThrowIfNull(textReader);
 
         var buffer = new RenderBuffer(options);
-        var formattingEngine = new FormattingEngine(options, buffer);
+        var formattingEngine = new FormatterEngine(options, buffer);
         formattingEngine.ReadStream(textReader);
         
         var pager = new Pager(console, options, buffer.GetStreamContent());

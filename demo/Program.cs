@@ -4,8 +4,16 @@ using Vertical.SpectreViewer;
 
 var options = new SpectreViewerOptions
 {
-    LineNumbers = true,
-    PageOverlapRows = 0
+    LineNumbers = false,
+    PageOverlapRows = 0,
+    //RenderHeight = 16,
+    //RenderWidth = 132,
+    Styles =
+    {
+        ["section"] = "darkorange",
+        ["opt"] = "dodgerblue1",
+        ["var"] = "fuchsia"
+    } 
 };
 
 SpectreConsoleViewer.MarkupWithPaging(File.OpenRead("grep.txt"), options);

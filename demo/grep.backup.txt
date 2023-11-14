@@ -12,39 +12,39 @@ $ grep "Needle in a Haystack" /etc/*
 
 [grey46]
 [section]Options[/]
-   [opt]-A [var]NUM[/]
-   --after-context=[var]NUM[/][/]
-       Print [var]NUM[/] lines of trailing context after matching lines.
+   -A NUM
+   --after-context=NUM
+       Print NUM lines of trailing context after matching lines.
        Places a line containing -- between contiguous groups of matches. 
-   [opt]-a
-   --text[/]
+   -a
+   --text
        Process a binary file as if it were text; this is equivalent
        to the --binary-files=text option.
 
-   [opt]-B [var]NUM[/]
-   --before-context=[var]NUM[/][/]
-       Print [var]NUM[/]q lines of leading context before matching lines.
+   -B NUM
+   --before-context=NUM
+       Print NUM lines of leading context before matching lines.
        Places a line containing -- between contiguous groups of matches.
 
-   [opt]-b
-   --byte-offset[/]
+   -b
+   --byte-offset
        Print the byte offset within the input file before each line of output.
 
-   [opt]--binary-files=[/][var]TYPE[/]
+   --binary-files=TYPE
        If the first few bytes of a file indicate that the file contains binary data, assume 
-       that the file is of type TYPE. By default, [var]TYPE[/] is binary, and grep normally outputs
+       that the file is of type TYPE. By default, TYPE is binary, and grep normally outputs
        either a one-line message saying that a binary file matches, or no message if there
-       is no match. If [var]TYPE[/] is without-match, grep assumes that a binary file does not match;
-       this is equivalent to the -I option. If [var]TYPE[/] is text, grep processes a binary file as
+       is no match. If TYPE is without-match, grep assumes that a binary file does not match;
+       this is equivalent to the -I option. If TYPE is text, grep processes a binary file as
        if it were text; this is equivalent to the -a option.
        Warning: grep --binary-files=text might output binary garbage, which can have nasty
        side effects if the output is a terminal and if the terminal driver interprets some
        of it as commands.
 
-   [opt]--colour[[=[var]WHEN[/]]]
-   --color[[=[var]WHEN[/]]][/]
+   --colour[[=WHEN]]
+   --color[[=WHEN]]
        Surround the matching string with the marker from the GREP_COLOR environment variable.
-       [var]WHEN[/] can be 'never', 'always', or 'auto' e.g. --color=always
+       WHEN can be 'never', 'always', or 'auto' e.g. --color=always
        By default the matched text will be colored red.
        If grep is made to match several strings, all of the matches will be colored, one exception
        is the regex ^ (match beginning of every line), the beginning of a line has no length so will

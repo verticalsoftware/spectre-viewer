@@ -15,7 +15,7 @@
     <None Update="grep.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="troubleshoot.txt">
+    <None Update="lorem.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="xp.txt">
