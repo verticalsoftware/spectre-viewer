@@ -41,6 +41,8 @@ internal class Pager
     {
         var offset = _streamContent.LowerOffset;
         var lastRenderedRange = RenderInfo.Empty;
+        var paging = _streamContent.RowCount > _options.RenderHeight
+                     || _options.CallerOptions.PagingMode == PagingMode.Page;
         
         while (true)
         {
@@ -58,10 +60,14 @@ internal class Pager
             // Print again?
             if (!renderInfo.Equals(lastRenderedRange))
             {
-                PrintPage(renderInfo);
+                PrintPage(renderInfo, paging);
+
+                if (!paging)
+                    return;
+                
                 lastRenderedRange = renderInfo;
                 PrintPrompt(renderInfo);
-            }                    
+            }
 
             switch (GetUserCommand())
             {
@@ -92,7 +98,7 @@ internal class Pager
                 case UserCommand.LastPage:
                     offset = _streamContent.UpperOffset;
                     break;
-                case UserCommand.Help when !_options.InternalHelpMode:
+                case UserCommand.Help:
                     ShowInternalHelp(_console);
                     lastRenderedRange = RenderInfo.Empty;
                     break;
@@ -100,16 +106,23 @@ internal class Pager
         }
     }
 
-    private void PrintPage(RenderInfo info)
+    private void PrintPage(RenderInfo info, bool paging)
     {
+        if (paging)
+        {
+            _console.Clear();
+        }
+        
         var pageContent = _streamContent.GetPageContent(info);
-        _console.Clear();
         _console.Markup(pageContent);
     }
 
     private void PrintPrompt(RenderInfo renderInfo)
     {
-        var prompt = $"{renderInfo.LowerBound+1}-{renderInfo.UpperBound}/{renderInfo.RowCount}: ";
+        var prompt = renderInfo.RowCount > 0
+            ? $"{renderInfo.LowerBound + 1}-{renderInfo.UpperBound}/{renderInfo.RowCount}: "
+            : "(Help empty) ";
+        
         PrintPrompt(prompt);
     }
     

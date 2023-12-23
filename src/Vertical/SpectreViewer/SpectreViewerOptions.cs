@@ -35,6 +35,11 @@ public sealed class SpectreViewerOptions
     public int PageOverlapRows { get; init; } = 3;
 
     /// <summary>
+    /// Gets the paging mode.
+    /// </summary>
+    public PagingMode PagingMode { get; init; } = PagingMode.Default;
+
+    /// <summary>
     /// Gets the color palette
     /// </summary>
     public Dictionary<string, string> Styles { get; init; } = new();

@@ -29,6 +29,8 @@ internal class StreamContent
 
     internal int PageCount => _lines.Count > 0 ? _lines.Count / PageRowCount + 1 : 0;
 
+    internal int RowCount => _lines.Count;
+
     internal RenderInfo GetRenderInfo(int offset)
     {
         var upperBound = Math.Min(_lines.Count, Math.Max(0, offset) + PageRowCount);
@@ -79,8 +81,12 @@ internal class StreamContent
 
     private static string BuildLineFormat(int linesCount)
     {
+        if (linesCount == 0)
+            return "0";
+        
         var digitCount = (int)Math.Floor(Math.Log10(linesCount) + 1);
         var digitFormat = new string('0', digitCount);
+        
         return $"[grey46]{{0:{digitFormat}}}[/] ";
     }
 }

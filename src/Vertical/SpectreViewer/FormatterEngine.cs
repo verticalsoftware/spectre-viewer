@@ -56,6 +56,8 @@ internal sealed class FormatterEngine
                 _buffer.Write(span);
                 return;
             }
+
+            virtualCursorPos = ptr;
         }
 
         // Mark indentation point
@@ -113,8 +115,8 @@ internal sealed class FormatterEngine
                 
                 if (b == -1)
                 {
-                    // No word break found, we break at ptr
-                    b = ptr;
+                    // No word break found, we break at 0
+                    b = 0;
                 }
                 
                 _buffer.Write(span[..b]);

@@ -2,7 +2,7 @@
 
 internal sealed class ComputedRenderingOptions
 {
-    internal ComputedRenderingOptions(SpectreViewerOptions options, bool internalHelpMode)
+    internal ComputedRenderingOptions(SpectreViewerOptions options)
     {
         RenderWidth = options.RenderWidth;
         RenderHeight = options.RenderHeight;
@@ -12,7 +12,6 @@ internal sealed class ComputedRenderingOptions
         InternalHeight = RenderHeight - Constants.BottomMarginSpace;
         PageOverlapRows = options.PageOverlapRows;
         CallerOptions = options;
-        InternalHelpMode = internalHelpMode;
     }
 
     internal int InternalHeight { get; set; }
@@ -30,6 +29,4 @@ internal sealed class ComputedRenderingOptions
     internal int PageOverlapRows { get; init; } = 3;
     
     internal SpectreViewerOptions CallerOptions { get; init; }
-    
-    internal bool InternalHelpMode { get; init; }
 }
