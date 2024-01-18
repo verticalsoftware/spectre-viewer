@@ -3,6 +3,9 @@ using Spectre.Console;
 
 namespace Vertical.SpectreViewer;
 
+/// <summary>
+/// Contains methods to render content to SpectreConsole.
+/// </summary>
 public static class SpectreConsoleViewer
 {
     /// <summary>

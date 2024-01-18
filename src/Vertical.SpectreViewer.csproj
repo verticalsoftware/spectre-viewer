@@ -1,18 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
     <RootNamespace />
+    <Title>vertical-spectreviewer</Title>
+    <Description>Markup-capable, pageable content viewer for SpectreConsole.</Description>
+    <Copyright>Copyright (C) 2024 Vertical Software Contributors</Copyright>
+    <Authors>Vertical Software Contributors</Authors>
     <PackageId>vertical-spectreviewer</PackageId>
+    <PackageTags>utilities;console</PackageTags>    
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <VersionPrefix>1.0.3</VersionPrefix>
-    <VersionSuffix>alpha</VersionSuffix>
-    <IsPackable>true</IsPackable>
+    <PackageProjectUrl>https://github.com/verticalsoftware/spectre-viewer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/verticalsoftware/spectre-viewer</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyAttribute>false</GenerateAssemblyAttribute>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolsPackageFormat>snupkg</SymbolsPackageFormat>
+    <SignAssembly>false</SignAssembly>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Spectre.Console" Version="0.47.1-preview.0.36" />
+    <PackageReference Include="Spectre.Console" Version="0.48.1-preview.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
